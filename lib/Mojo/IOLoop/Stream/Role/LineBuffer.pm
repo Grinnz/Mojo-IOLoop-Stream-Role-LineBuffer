@@ -148,4 +148,5 @@ This is free software, licensed under:
 
 =head1 SEE ALSO
 
-L<POE::Filter::Line>, L<IO::Async::Protocol::LineStream>
+L<Mojo::IOLoop::LineReader>, L<MojoX::LineStream>, L<POE::Filter::Line>,
+L<IO::Async::Protocol::LineStream>
