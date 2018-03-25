@@ -8,7 +8,7 @@ has 'read_line_buffer' => '';
 has 'read_line_separator' => sub { qr/\x0D?\x0A/ };
 has 'write_line_separator' => "\x0D\x0A";
 
-requires qw(on emit);
+requires qw(on emit write);
 
 sub read_lines {
   my $self = shift;
