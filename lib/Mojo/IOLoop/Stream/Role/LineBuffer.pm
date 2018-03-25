@@ -9,7 +9,7 @@ has 'write_line_separator' => "\x0D\x0A";
 
 requires qw(on emit write);
 
-sub read_lines {
+sub watch_lines {
   my $self = shift;
   return $self if $self->{_read_line_read_cb};
   $self->{_read_line_read_cb} = $self->on(read => sub {
@@ -18,6 +18,7 @@ sub read_lines {
     my $sep = $self->read_line_separator;
     while ($self->{_read_line_buffer} =~ s/^(.*?)($sep)//s) {
       $self->emit(read_line => "$1", "$2");
+    } continue {
       $sep = $self->read_line_separator;
     }
   });
@@ -49,7 +50,7 @@ Mojo::IOLoop::Stream::Role::LineBuffer - Read and write streams by lines
   my $output_stream = Mojo::IOLoop::Stream->with_roles('+LineBuffer')->new($handle);
   Mojo::IOLoop->client({port => 3000} => sub {
     my ($loop, $err, $stream) = @_;
-    $stream->with_roles('+LineBuffer')->read_lines->on(read_line => sub {
+    $stream->with_roles('+LineBuffer')->watch_lines->on(read_line => sub {
       my ($stream, $line) = @_;
       say "Received line: $line";
       $output_stream->write_line('Got it!');
@@ -59,7 +60,7 @@ Mojo::IOLoop::Stream::Role::LineBuffer - Read and write streams by lines
 =head1 DESCRIPTION
 
 L<Mojo::IOLoop::Stream::Role::LineBuffer> composes the method
-L</"read_lines"> which causes a L<Mojo::IOLoop::Stream> object to emit the
+L</"watch_lines"> which causes a L<Mojo::IOLoop::Stream> object to emit the
 L</"read_line"> event for each line received. The L</"write_line"> method is
 also provided to add a line separator to the passed data before writing.
 
@@ -105,9 +106,9 @@ Defaults to the network newline CR/LF (C<\x0D\x0A>).
 
 L<Mojo::IOLoop::Stream::Role::LineBuffer> composes the following methods.
 
-=head2 read_lines
+=head2 watch_lines
 
-  $stream = $stream->read_lines;
+  $stream = $stream->watch_lines;
 
 Subscribe to the L<Mojo::IOLoop::Stream/"read"> and
 L<Mojo::IOLoop::Stream/"close"> events, to buffer received bytes and emit

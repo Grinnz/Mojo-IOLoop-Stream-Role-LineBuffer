@@ -7,7 +7,7 @@ use Mojo::IOLoop::Stream;
 pipe my $read, my $write or die "Failed to open pipe: $!";
 
 my @lines;
-my $reader = Mojo::IOLoop::Stream->with_roles('+LineBuffer')->new($read)->read_lines;
+my $reader = Mojo::IOLoop::Stream->with_roles('+LineBuffer')->new($read)->watch_lines;
 $reader->on(read_line => sub {
   my ($reader, $line, $sep) = @_;
   push @lines, [$line, $sep];
