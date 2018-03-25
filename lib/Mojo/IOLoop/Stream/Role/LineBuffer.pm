@@ -46,12 +46,14 @@ Mojo::IOLoop::Stream::Role::LineBuffer - Read and write streams by lines
 =head1 SYNOPSIS
 
   use Mojo::IOLoop;
+  use Mojo::IOLoop::Stream;
+  my $output_stream = Mojo::IOLoop::Stream->with_roles('+LineBuffer')->new($handle);
   Mojo::IOLoop->client({port => 3000} => sub {
     my ($loop, $err, $stream) = @_;
     $stream->with_roles('+LineBuffer')->read_lines->on(read_line => sub {
       my ($stream, $line) = @_;
       say "Received line: $line";
-      $stream->write_line('Got it!');
+      $output_stream->write_line('Got it!');
     });
   });
 
