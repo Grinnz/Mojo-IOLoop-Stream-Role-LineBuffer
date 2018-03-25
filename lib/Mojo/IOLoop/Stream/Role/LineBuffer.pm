@@ -11,19 +11,19 @@ requires qw(on emit write);
 
 sub read_lines {
   my $self = shift;
-  return $self if $self->{read_line_read_cb};
-  $self->{read_line_read_cb} = $self->on(read => sub {
+  return $self if $self->{_read_line_read_cb};
+  $self->{_read_line_read_cb} = $self->on(read => sub {
     my ($self, $bytes) = @_;
-    my $buffer = $self->{read_line_buffer} .= $bytes;
+    my $buffer = $self->{_read_line_buffer} .= $bytes;
     my $sep = $self->read_line_separator;
-    while ($self->{read_line_buffer} =~ s/^(.*?)($sep)//s) {
+    while ($self->{_read_line_buffer} =~ s/^(.*?)($sep)//s) {
       $self->emit(read_line => "$1", "$2");
       $sep = $self->read_line_separator;
     }
   });
-  $self->{read_line_close_cb} = $self->on(close => sub {
+  $self->{_read_line_close_cb} = $self->on(close => sub {
     my $self = shift;
-    if (length(my $buffer = delete $self->{read_line_buffer} // '')) {
+    if (length(my $buffer = delete $self->{_read_line_buffer} // '')) {
       $self->emit(read_line => $buffer);
     }
   });
