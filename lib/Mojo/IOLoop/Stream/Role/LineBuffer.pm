@@ -14,7 +14,7 @@ sub watch_lines {
   return $self if $self->{_read_line_read_cb};
   $self->{_read_line_read_cb} = $self->on(read => sub {
     my ($self, $bytes) = @_;
-    my $buffer = $self->{_read_line_buffer} .= $bytes;
+    $self->{_read_line_buffer} .= $bytes;
     my $sep = $self->read_line_separator;
     while ($self->{_read_line_buffer} =~ s/^(.*?)($sep)//s) {
       $self->emit(read_line => "$1", "$2");
