@@ -11,7 +11,8 @@ requires qw(on emit write);
 
 sub read_lines {
   my $self = shift;
-  $self->on(read => sub {
+  return $self if $self->{read_line_read_cb};
+  $self->{read_line_read_cb} = $self->on(read => sub {
     my ($self, $bytes) = @_;
     my $buffer = $self->{read_line_buffer} .= $bytes;
     my $sep = $self->read_line_separator;
@@ -20,7 +21,7 @@ sub read_lines {
       $sep = $self->read_line_separator;
     }
   });
-  $self->on(close => sub {
+  $self->{read_line_close_cb} = $self->on(close => sub {
     my $self = shift;
     if (length(my $buffer = delete $self->{read_line_buffer} // '')) {
       $self->emit(read_line => $buffer);
