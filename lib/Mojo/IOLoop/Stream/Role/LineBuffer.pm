@@ -4,7 +4,6 @@ use Mojo::Base -role;
 
 our $VERSION = '0.001';
 
-has 'read_line_buffer' => '';
 has 'read_line_separator' => sub { qr/\x0D?\x0A/ };
 has 'write_line_separator' => "\x0D\x0A";
 
@@ -14,18 +13,17 @@ sub read_lines {
   my $self = shift;
   $self->on(read => sub {
     my ($self, $bytes) = @_;
-    $self->read_line_buffer(my $buffer = $self->read_line_buffer . $bytes);
+    my $buffer = $self->{read_line_buffer} .= $bytes;
     my $sep = $self->read_line_separator;
-    while ($buffer =~ s/^(.*?)($sep)//s) {
-      $self->read_line_buffer($buffer)->emit(read_line => "$1", "$2");
-      $buffer = $self->read_line_buffer;
+    while ($self->{read_line_buffer} =~ s/^(.*?)($sep)//s) {
+      $self->emit(read_line => "$1", "$2");
       $sep = $self->read_line_separator;
     }
   });
   $self->on(close => sub {
     my $self = shift;
-    if (length(my $buffer = $self->read_line_buffer)) {
-      $self->read_line_buffer('')->emit(read_line => $buffer);
+    if (length(my $buffer = delete $self->{read_line_buffer} // '')) {
+      $self->emit(read_line => $buffer);
     }
   });
   return $self;
@@ -83,13 +81,6 @@ as a separate argument if present.
 
 L<Mojo::IOLoop::Stream::Role::LineBuffer> composes the following attributes.
 
-=head2 read_line_buffer
-
-  my $buffer = $stream->read_line_buffer;
-  $stream    = $stream->read_line_buffer('');
-
-Buffer of data read so far, to be emitted in L</"read_line">.
-
 =head2 read_line_separator
 
   my $separator = $stream->read_line_separator;
@@ -118,9 +109,9 @@ L<Mojo::IOLoop::Stream::Role::LineBuffer> composes the following methods.
   $stream = $stream->read_lines;
 
 Subscribe to the L<Mojo::IOLoop::Stream/"read"> and
-L<Mojo::IOLoop::Stream/"close"> events, to buffer received bytes in
-L</"read_line_buffer"> and emit L</"read_line"> when L</"read_line_separator">
-is encountered or the stream is closed with buffered data.
+L<Mojo::IOLoop::Stream/"close"> events, to buffer received bytes and emit
+L</"read_line"> when L</"read_line_separator"> is encountered or the stream is
+closed with buffered data.
 
 =head2 write_line
 

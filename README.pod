@@ -44,13 +44,6 @@ as a separate argument if present.
 
 L<Mojo::IOLoop::Stream::Role::LineBuffer> composes the following attributes.
 
-=head2 read_line_buffer
-
-  my $buffer = $stream->read_line_buffer;
-  $stream    = $stream->read_line_buffer('');
-
-Buffer of data read so far, to be emitted in L</"read_line">.
-
 =head2 read_line_separator
 
   my $separator = $stream->read_line_separator;
@@ -79,9 +72,9 @@ L<Mojo::IOLoop::Stream::Role::LineBuffer> composes the following methods.
   $stream = $stream->read_lines;
 
 Subscribe to the L<Mojo::IOLoop::Stream/"read"> and
-L<Mojo::IOLoop::Stream/"close"> events, to buffer received bytes in
-L</"read_line_buffer"> and emit L</"read_line"> when L</"read_line_separator">
-is encountered or the stream is closed with buffered data.
+L<Mojo::IOLoop::Stream/"close"> events, to buffer received bytes and emit
+L</"read_line"> when L</"read_line_separator"> is encountered or the stream is
+closed with buffered data.
 
 =head2 write_line
 
