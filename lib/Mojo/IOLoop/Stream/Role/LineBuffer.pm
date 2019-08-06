@@ -16,11 +16,15 @@ sub watch_lines {
     my ($self, $bytes) = @_;
     $self->{_read_line_buffer} .= $bytes;
     my $sep = $self->read_line_separator;
-    while ($self->{_read_line_buffer} =~ s/^(.*?)($sep)//s) {
+    my $pos;
+    while ($self->{_read_line_buffer} =~ m/\G(.*?)($sep)/gs) {
+      $pos = pos $self->{_read_line_buffer};
       $self->emit(read_line => "$1", "$2");
     } continue {
       $sep = $self->read_line_separator;
     }
+    $self->{_read_line_buffer} = substr($self->{_read_line_buffer}, $pos)
+      if $pos;
   });
   $self->{_read_line_close_cb} = $self->on(close => sub {
     my $self = shift;
