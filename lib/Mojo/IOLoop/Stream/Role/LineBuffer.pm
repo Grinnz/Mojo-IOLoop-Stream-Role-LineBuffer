@@ -30,7 +30,7 @@ sub watch_lines {
     my $self = shift;
     if (length(my $buffer = delete $self->{_read_line_buffer} // '')) {
       my $sep = $self->read_line_separator;
-      my $pos;
+      my $pos = 0;
       while ($buffer =~ m/\G(.*?)($sep)/gs) {
         $pos = pos $buffer;
         $self->emit(read_line => "$1", "$2");

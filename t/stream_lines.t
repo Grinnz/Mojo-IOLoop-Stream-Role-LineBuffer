@@ -91,4 +91,27 @@ Mojo::IOLoop->remove($timeout);
 is_deeply \@lines, [['bar', '3']], 'remaining line received';
 @lines = ();
 
+($read, $write) = pipely or die "Failed to open pipe: $!";
+
+$reader = Mojo::IOLoop::Stream->with_roles('+LineBuffer')->new($read)->watch_lines;
+$reader->on(read_line => sub {
+  my ($reader, $line, $sep) = @_;
+  push @lines, [$line, $sep];
+});
+$reader->on(read => sub { Mojo::IOLoop->stop });
+$reader->start;
+
+$writer = Mojo::IOLoop::Stream->with_roles('+LineBuffer')->new($write);
+$writer->start;
+
+$reader->on(read => sub { shift->read_line_separator('4')->close; $writer->close });
+$writer->write('bar');
+
+$timeout = Mojo::IOLoop->timer(0.1 => sub { Mojo::IOLoop->stop });
+Mojo::IOLoop->start;
+Mojo::IOLoop->remove($timeout);
+
+is_deeply \@lines, [['bar', undef]], 'remaining bytes received';
+@lines = ();
+
 done_testing;
