@@ -16,7 +16,7 @@ sub watch_lines {
     my ($self, $bytes) = @_;
     $self->{_read_line_buffer} .= $bytes;
     my $sep = $self->read_line_separator;
-    while ($self->{_read_line_buffer} =~ s/(.*?)($sep)//s) {
+    while ($self->{_read_line_buffer} =~ s/^(.*?)($sep)//s) {
       $self->emit(read_line => "$1", "$2");
     } continue {
       $sep = $self->read_line_separator;
@@ -26,7 +26,7 @@ sub watch_lines {
     my $self = shift;
     if (length($self->{_read_line_buffer} // '')) {
       my $sep = $self->read_line_separator;
-      while ($self->{_read_line_buffer} =~ s/(.*?)($sep)//s) {
+      while ($self->{_read_line_buffer} =~ s/^(.*?)($sep)//s) {
         $self->emit(read_line => "$1", "$2");
       } continue {
         $sep = $self->read_line_separator;
