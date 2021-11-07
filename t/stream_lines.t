@@ -45,6 +45,8 @@ subtest 'Basic line buffering' => sub {
   Mojo::IOLoop->remove($timeout);
 
   is_deeply \@lines, [['bazline?', "\x0D\x0A"]], 'one line received';
+
+  Mojo::IOLoop->reset;
 };
 
 subtest 'Custom line separators' => sub {
@@ -71,6 +73,8 @@ subtest 'Custom line separators' => sub {
   Mojo::IOLoop->remove($timeout);
 
   is_deeply \@lines, [['foo', 'bar'],["\x0A",'bar'],['baz','bar']], 'three lines received';
+
+  Mojo::IOLoop->reset;
 };
 
 subtest 'Multiple lines on close' => sub {
@@ -97,6 +101,8 @@ subtest 'Multiple lines on close' => sub {
   Mojo::IOLoop->remove($timeout);
 
   is_deeply \@lines, [['before', '1'], ['mid', '2'], ['after', undef]], 'remaining lines and bytes received';
+
+  Mojo::IOLoop->reset;
 };
 
 subtest 'Line separator on close' => sub {
@@ -122,6 +128,8 @@ subtest 'Line separator on close' => sub {
   Mojo::IOLoop->remove($timeout);
 
   is_deeply \@lines, [['bar', '3']], 'remaining line received';
+
+  Mojo::IOLoop->reset;
 };
 
 subtest 'No line separator on close' => sub {
@@ -147,6 +155,8 @@ subtest 'No line separator on close' => sub {
   Mojo::IOLoop->remove($timeout);
 
   is_deeply \@lines, [['bar', undef]], 'remaining bytes received';
+
+  Mojo::IOLoop->reset;
 };
 
 subtest 'Closing stream in read_line event' => sub {
@@ -172,6 +182,8 @@ subtest 'Closing stream in read_line event' => sub {
   Mojo::IOLoop->remove($timeout);
 
   is_deeply \@lines, [['foo', "\x0D\x0A"]], 'one line received';
+
+  Mojo::IOLoop->reset;
 };
 
 done_testing;
