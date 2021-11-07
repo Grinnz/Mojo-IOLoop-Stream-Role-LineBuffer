@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+0.007     2021-11-07 01:57:29 EDT
+  - Fix issue when closing stream from read_line event handler (#4)
+
 0.006     2019-08-22 15:48:27 EDT
   - Avoid an uninitialized value warning in close handler
 
