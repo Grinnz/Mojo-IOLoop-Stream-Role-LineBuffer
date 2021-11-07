@@ -69,7 +69,7 @@ subtest 'Basic line buffering' => sub {
   is_deeply \@lines, [['before', '1'], ['mid', '2'], ['after', undef]], 'remaining lines and bytes received';
 };
 
-subtest 'Changing line separator in event callback' => sub {
+subtest 'Line separator on close' => sub {
   my ($read, $write) = pipely or die "Failed to open pipe: $!";
 
   my $reader = Mojo::IOLoop::Stream->with_roles('+LineBuffer')->new($read)->watch_lines;
@@ -94,7 +94,7 @@ subtest 'Changing line separator in event callback' => sub {
   is_deeply \@lines, [['bar', '3']], 'remaining line received';
 };
 
-subtest 'Changing line separator at EOF' => sub {
+subtest 'No line separator on close' => sub {
   my ($read, $write) = pipely or die "Failed to open pipe: $!";
 
   my $reader = Mojo::IOLoop::Stream->with_roles('+LineBuffer')->new($read)->watch_lines;
@@ -117,6 +117,31 @@ subtest 'Changing line separator at EOF' => sub {
   Mojo::IOLoop->remove($timeout);
 
   is_deeply \@lines, [['bar', undef]], 'remaining bytes received';
+};
+
+subtest 'Closing stream in read_line event' => sub {
+  my ($read, $write) = pipely or die "Failed to open pipe: $!";
+
+  my $reader = Mojo::IOLoop::Stream->with_roles('+LineBuffer')->new($read)->watch_lines;
+  my @lines;
+  $reader->on(read_line => sub {
+    my ($reader, $line, $sep) = @_;
+    push @lines, [$line, $sep];
+    $reader->close;
+  });
+  $reader->on(read => sub { Mojo::IOLoop->stop });
+  $reader->start;
+
+  my $writer = Mojo::IOLoop::Stream->with_roles('+LineBuffer')->new($write);
+  $writer->start;
+
+  $writer->write_line('foo');
+
+  my $timeout = Mojo::IOLoop->timer(0.1 => sub { Mojo::IOLoop->stop });
+  Mojo::IOLoop->start;
+  Mojo::IOLoop->remove($timeout);
+
+  is_deeply \@lines, [['foo', "\r\n"]], 'one line received';
 };
 
 done_testing;

@@ -16,29 +16,25 @@ sub watch_lines {
     my ($self, $bytes) = @_;
     $self->{_read_line_buffer} .= $bytes;
     my $sep = $self->read_line_separator;
-    my $pos;
-    while ($self->{_read_line_buffer} =~ m/\G(.*?)($sep)/gs) {
-      $pos = pos $self->{_read_line_buffer};
+    while ($self->{_read_line_buffer} =~ s/(.*?)($sep)//s) {
       $self->emit(read_line => "$1", "$2");
     } continue {
       $sep = $self->read_line_separator;
     }
-    $self->{_read_line_buffer} = substr($self->{_read_line_buffer}, $pos)
-      if $pos;
   });
   $self->{_read_line_close_cb} = $self->on(close => sub {
     my $self = shift;
-    if (length(my $buffer = delete $self->{_read_line_buffer} // '')) {
+    if (length($self->{_read_line_buffer} // '')) {
       my $sep = $self->read_line_separator;
-      my $pos = 0;
-      while ($buffer =~ m/\G(.*?)($sep)/gs) {
-        $pos = pos $buffer;
+      while ($self->{_read_line_buffer} =~ s/(.*?)($sep)//s) {
         $self->emit(read_line => "$1", "$2");
       } continue {
         $sep = $self->read_line_separator;
       }
-      $self->emit(read_line => $pos ? substr($buffer, $pos) : $buffer)
-        if $pos < length $buffer;
+      if (length(my $buffer = $self->{_read_line_buffer})) {
+        $self->{_read_line_buffer} = '';
+        $self->emit(read_line => $buffer);
+      }
     }
   });
   return $self;
