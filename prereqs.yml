@@ -5,5 +5,5 @@ runtime:
     Role::Tiny: '2.000001'
 test:
   requires:
-    IO::Pipely: 0
+    Scalar::Util: 0
     Test::More: '0.96'

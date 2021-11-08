@@ -1,4 +1,5 @@
 {{$NEXT}}
+  - Rework tests to use TCP sockets consistently in an attempt to fix Windows failures
 
 0.007     2021-11-07 01:57:29 EDT
   - Fix issue when closing stream from read_line event handler (#4)
