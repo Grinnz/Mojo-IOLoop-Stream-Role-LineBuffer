@@ -84,7 +84,7 @@ EOW
         "Dan Book <dbook\@cpan.org>"
       ],
       "dist_name" => "Mojo-IOLoop-Stream-Role-LineBuffer",
-      "dist_version" => "0.008",
+      "dist_version" => "0.009",
       "license" => "artistic_2",
       "module_name" => "Mojo::IOLoop::Stream::Role::LineBuffer",
       "recursive_test_files" => 1,
@@ -96,7 +96,6 @@ EOW
       "test_requires" => {
         "File::Spec" => 0,
         "Module::Metadata" => 0,
-        "Scalar::Util" => 0,
         "Test::More" => "0.96"
       }
     );
@@ -105,7 +104,6 @@ EOW
     my %fallback_build_requires = (
       "File::Spec" => 0,
       "Module::Metadata" => 0,
-      "Scalar::Util" => 0,
       "Test::More" => "0.96"
     );
 
