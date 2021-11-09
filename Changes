@@ -1,4 +1,5 @@
 {{$NEXT}}
+  - Fix race condition in tests
 
 0.008     2021-11-08 00:11:29 EST
   - Rework tests to use TCP sockets consistently in an attempt to fix Windows failures

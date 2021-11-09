@@ -2,7 +2,6 @@ use strict;
 use warnings;
 use Test::More;
 use Mojo::IOLoop;
-use Scalar::Util 'weaken';
 
 subtest 'Basic line buffering' => sub {
   my @outputs;
@@ -17,16 +16,9 @@ subtest 'Basic line buffering' => sub {
   });
   my $port = Mojo::IOLoop->acceptor($server)->port;
 
-  my @inputs = ('foo', "bar\x0Abaz", "line?\x0D\x0A");
   my $client = Mojo::IOLoop->client(address => '127.0.0.1', port => $port, sub {
     my ($loop, $err, $stream) = @_;
-    my $weak_cb;
-    my $cb = $weak_cb = sub {
-      my ($stream) = @_;
-      $stream->write(shift(@inputs) => $weak_cb) if @inputs;
-    };
-    weaken $weak_cb;
-    $cb->($stream);
+    $stream->write('foo');
   });
 
   my $timeout = Mojo::IOLoop->timer(0.1 => sub { Mojo::IOLoop->stop });
@@ -36,12 +28,17 @@ subtest 'Basic line buffering' => sub {
   is_deeply \@outputs, [], 'no lines received';
   @outputs = ();
 
+  my $input_stream = Mojo::IOLoop->stream($client);
+  $input_stream->write("bar\x0Abaz");
+
   $timeout = Mojo::IOLoop->timer(0.1 => sub { Mojo::IOLoop->stop });
   Mojo::IOLoop->start;
   Mojo::IOLoop->remove($timeout);
 
   is_deeply \@outputs, [['foobar', "\x0A"]], 'one line received';
   @outputs = ();
+
+  $input_stream->with_roles('+LineBuffer')->write_line('line?');
 
   $timeout = Mojo::IOLoop->timer(0.1 => sub { Mojo::IOLoop->stop });
   Mojo::IOLoop->start;
